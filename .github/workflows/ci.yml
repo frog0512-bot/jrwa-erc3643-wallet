@@ -1,0 +1,26 @@
+name: JRWA CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install official ERC-3643 dependencies
+        working-directory: blockchain
+        run: npm install
+      - name: Verify official packages
+        working-directory: blockchain
+        run: npm run verify:official
+      - name: Compile JRWA contracts
+        working-directory: blockchain
+        run: npm run compile
+      - name: Smoke configuration
+        working-directory: blockchain
+        run: npm run smoke
