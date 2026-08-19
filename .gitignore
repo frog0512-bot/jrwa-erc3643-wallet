@@ -1,0 +1,14 @@
+.env
+*.db
+*.db-shm
+*.db-wal
+data/
+__pycache__/
+*.pyc
+blockchain/node_modules/
+blockchain/.env
+blockchain/artifacts/*
+!blockchain/artifacts/.gitkeep
+blockchain/deployments/*
+!blockchain/deployments/.gitkeep
+.DS_Store
