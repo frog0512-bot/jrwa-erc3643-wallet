@@ -1,0 +1,42 @@
+name: Deploy JRWA to Sepolia
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY-JRWA-SEPOLIA to confirm'
+        required: true
+        type: string
+jobs:
+  deploy:
+    if: ${{ inputs.confirm == 'DEPLOY-JRWA-SEPOLIA' }}
+    runs-on: ubuntu-latest
+    environment: sepolia
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        working-directory: blockchain
+        run: npm install
+      - name: Verify + compile
+        working-directory: blockchain
+        run: npm run verify:official && npm run compile && npm run smoke
+      - name: Deploy official T-REX / JRWA suite to Sepolia
+        working-directory: blockchain
+        env:
+          SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          RELAYER_PRIVATE_KEY: ${{ secrets.RELAYER_PRIVATE_KEY }}
+          KYC_SIGNER_PRIVATE_KEY: ${{ secrets.KYC_SIGNER_PRIVATE_KEY }}
+          WALLET_MASTER_KEY: ${{ secrets.WALLET_MASTER_KEY }}
+          ALLOW_NON_SEPOLIA: '0'
+        run: npm run deploy:sepolia
+      - name: Upload deployment manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: jrwa-sepolia-deployment
+          path: blockchain/deployments/
+          if-no-files-found: error
